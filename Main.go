@@ -16,7 +16,7 @@ var (
 	GET_HANDLER = "GET"
 	POST_HANDLER = "POST"
 	WORKING_DIR, _ = os.Getwd()
-	BASE_DIR = WORKING_DIR + "/"
+	JSON_DIR = WORKING_DIR + "/jsons/"
 	store map[int]map[string]interface{} = make(map[int]map[string]interface{})
 	requestHandlers map[string]handler = make(map[string]handler)
 )
@@ -48,7 +48,7 @@ func readBodyToJson(body io.ReadCloser) (map[string]interface{}, error) {
 
 func writeJsonToDisk(jsonBlob map[string]interface{}) error {
 	id := strconv.Itoa(jsonBlob["__id"].(int))
-	file, err := os.Create(BASE_DIR + "jsons/" + id)
+	file, err := os.Create(JSON_DIR + id)
 
 	if err == nil {
 		var jsonAsString []byte
@@ -64,7 +64,7 @@ func writeJsonToDisk(jsonBlob map[string]interface{}) error {
 
 func getPacketByKey(key string) (map[string]interface{}, error) {
 	var out map[string]interface{}
-	filepath := BASE_DIR + "jsons/" + key
+	filepath := JSON_DIR + key
 	bytes, err := ioutil.ReadFile(filepath)
 
 	if err == nil {
@@ -75,7 +75,7 @@ func getPacketByKey(key string) (map[string]interface{}, error) {
 }
 
 func setupRoutes() {
-	os.Mkdir(BASE_DIR + "jsons", 0777)
+	os.Mkdir(JSON_DIR, 0777)
 
 	requestHandlers[GET_HANDLER] = func(w http.ResponseWriter, r *http.Request) {
 		key := strings.TrimLeft(r.URL.Path, "/")
