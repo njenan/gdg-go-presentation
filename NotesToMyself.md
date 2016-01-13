@@ -9,6 +9,7 @@ functions
   - stacking
   - this is go's 'finally' block
 - Closures
+- Scope (uppercase vs lowercase)
 
 
 Pointers
