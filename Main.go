@@ -2,36 +2,73 @@ package main
 
 import (
 	"net/http"
-	"io/ioutil"
 	"log"
-	"io"
-	"errors"
+	"encoding/json"
+	"strconv"
+	"math/rand"
 )
 
-func readBody(body io.ReadCloser) ([]byte, error) {
-	out, err := ioutil.ReadAll(body)
+var store map[int]map[string]interface{}
 
-	if err != nil {
-		return nil, err
+func init() {
+	store = make(map[int]map[string]interface{})
+}
+
+func get(w http.ResponseWriter, r *http.Request) {
+	stringId := r.URL.Path[1:]
+
+	var id int
+	var err error
+
+	if id, err = strconv.Atoi(stringId); err != nil {
+		w.Write([]byte(err.Error()))
+		return
 	}
 
-	if len(out) == 0 {
-		return nil, errors.New("No body to echo!")
+	jsonObj := store[id]
+
+	if jsonObj == nil {
+		w.Write([]byte("Object does not exist"))
+		return
 	}
 
-	return out, nil
+	var bytes []byte
+	if bytes, err = json.Marshal(jsonObj); err != nil {
+		w.Write([]byte("Could not marshal object"))
+	}
+
+	w.Write(bytes)
+}
+
+func post(w http.ResponseWriter, r *http.Request) {
+	var jsonBlob map[string]interface{}
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBlob); err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	id := rand.Intn(1000000)
+	jsonBlob["__id"] = id
+	store[id] = jsonBlob
+
+	if bytes, err := json.Marshal(jsonBlob); err != nil {
+		w.Write([]byte(err.Error()))
+	} else {
+		w.Write(bytes)
+	}
 }
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		out, err := readBody(r.Body)
-
-		if err != nil {
-			log.Println(err.Error())
-			w.Write([]byte(err.Error()))
+		w.Header().Set("Content-Type", "application/json")
+		if r.Method == "GET" {
+			get(w, r)
+		} else if r.Method == "POST" {
+			post(w, r)
+		} else {
+			w.Write([]byte("Something went wrong"))
 		}
-
-		w.Write([]byte(out))
 	})
 
 	log.Println("Server started at port 8080")
