@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"sync"
 	"runtime"
 )
 
@@ -53,34 +52,34 @@ func (dao DaoInstance) Search() ([]map[string]interface{}, error) {
 		return nil, err
 	}
 
-	wg := sync.WaitGroup{}
+	size := len(files)
+
+	channel := make(chan map[string]interface{})
 
 	for _, value := range files {
-		wg.Add(1)
-		go func (value os.FileInfo) {
-			defer wg.Done()
-
+		go func (value os.FileInfo, channel chan map[string]interface{}) {
 			log.Println("Trying to read file ", value.Name())
 
 			var contents []byte
 			if contents, err = ioutil.ReadFile("jsons/" + value.Name()); err != nil {
 				log.Println("Error reading file", value.Name())
-				//return nil, err
 			}
 
 			var current map[string]interface{}
 			if err = json.Unmarshal(contents, &current); err != nil {
 				log.Println("Error unmarshalling file", value.Name())
-				//return nil, err
 			}
 
-			out = append(out, current)
+			channel <- current
 
 			log.Println("File ", value.Name(), " was read normally")
-		}(value)
+		}(value, channel)
 	}
 
-	wg.Wait()
+	for i := 0; i < size; i ++ {
+		next := <- channel
+		out = append(out, next)
+	}
 
 	log.Println("Search ended normally")
 	return out, nil
