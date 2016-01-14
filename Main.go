@@ -18,7 +18,7 @@ func main() {
 
 	b := 2 // <- Can't use this outside of functions
 
-	fmt.Println(a,b)
+	fmt.Println(a, b)
 
 
 	var people [3]string
@@ -88,6 +88,32 @@ func main() {
 	fmt.Println(*y)
 	fmt.Println(z)
 
+
+
+	/* OOP in go */
+	myFirstObject := MyObject{1,2}
+
+	fmt.Println(myFirstObject.a)
+	fmt.Println(myFirstObject.b)
+
+
+	myFirstObject.yell("I love Go!")
+}
+
+/* Struct */
+type MyObject struct {
+	a int
+	b int
+}
+
+/* Interfaces */
+type MyFirstInterface interface {
+	yell(string)
+}
+
+/* 'Method' */
+func (MyObject) yell(thingToYell string) {
+	fmt.Println(thingToYell)
 }
 
 
