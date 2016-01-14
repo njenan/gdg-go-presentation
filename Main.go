@@ -74,6 +74,19 @@ func main() {
 		c ++
 	}
 
+
+	/* Pointers */
+	var x int
+	x = 9
+	y := &x
+
+
+	x = 10
+
+	fmt.Println(x)
+	fmt.Println(*y)
+
+
 }
 
 
