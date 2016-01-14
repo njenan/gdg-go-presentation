@@ -9,7 +9,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Start handle request")
 
-		w.Write("Hello world")
+		w.Write([]byte("Hello world"))
 
 		log.Println("End handle request")
 	})
