@@ -2,28 +2,41 @@ package main
 
 import (
 	"fmt"
+	"sync"
+	"time"
 )
 
-func toDefer(i int) {
-	fmt.Printf("Defer func execute count = %v\n", i)
+func print(i int, wg *sync.WaitGroup) {
+	time.Sleep(time.Duration(i) * time.Second)
+	fmt.Println(i)
+	wg.Done()
 }
 
-func badFunc() {
-	panic("Something went wrong")
+func calcSquare(i int, ch chan int) {
+	ch <- i * i
 }
 
 func main() {
-	defer toDefer(1)
-	defer toDefer(2)
-	defer toDefer(3)
-	//defer func() {
-	//	fmt.Printf("Recovered from '%v'\n", recover())
-	//}()
+	/*
+		var wg sync.WaitGroup
+		wg.Add(3)
 
-	fmt.Println("Main function body")
+		go print(1, &wg)
+		go print(2, &wg)
+		go print(3, &wg)
 
-	badFunc()
-	recover()
+		wg.Wait()
 
-	fmt.Println("After bad function")
+		fmt.Println("Done")
+	*/
+
+	channel := make(chan int)
+
+	go calcSquare(9, channel)
+	go calcSquare(15, channel)
+	go calcSquare(31, channel)
+	x, y, z := <-channel, <-channel, <-channel
+
+	fmt.Printf("%v, %v, %v\n", x, y, z)
+
 }
