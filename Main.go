@@ -2,32 +2,16 @@ package main
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/nathan-osman/go-sunrise"
 )
 
-type Animal interface {
-	call()
-}
-
-type Cat struct {
-}
-
-type Dog struct {
-}
-
-func (dog *Dog) call() {
-	fmt.Println("Bark")
-}
-
-func (cat *Cat) call() {
-	fmt.Println("Meow")
-}
-
 func main() {
-	var animal Animal
+	rise, set := sunrise.SunriseSunset(
+		43.65, -79.38, // Toronto, CA
+		2000, time.January, 1, // 2000-01-01
+	)
 
-	animal = &Dog{}
-	animal.call()
-
-	animal = &Cat{}
-	animal.call()
+	fmt.Printf("sunrise: %v\nsunset: %v\n", rise, set)
 }
